@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading...</title>
+    <style>
+        /* Bôi đen toàn bộ màn hình để người dùng không kịp nhìn thấy gì */
+        body {
+            background-color: #000000;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        window.onload = function() {
+            // 1. Tự động bóc tách mã token từ link Link4m trả về (?token=xxxx)
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+
+            if (token) {
+                // 2. Tạo một lệnh click ẩn danh để kích hoạt Server tải file ngầm
+                const downloadUrl = `/download-core?token=${token}`;
+                const hiddenLink = document.createElement('a');
+                hiddenLink.href = downloadUrl;
+                document.body.appendChild(hiddenLink);
+                
+                hiddenLink.click(); // Kích hoạt tải file .lua tự động
+                hiddenLink.remove(); // Xóa thẻ ảo ngay lập tức
+
+                // 3. XÓA DẤU VẾT & CHUYỂN HƯỚNG NHƯ CHƯA TỪNG CÓ CUỘC CHIA LY
+                setTimeout(() => {
+                    // Lệnh replace này sẽ ĐÈ và XÓA luôn lịch sử truy cập của trang này.
+                    // Người dùng bấm nút "Quay lại" trên trình duyệt cũng không thể tìm lại link cũ.
+                    window.location.replace("https://www.google.com"); 
+                }, 400); // 400 mili-giây là đủ để trình duyệt bắt được lệnh tải file và chạy mất hút sang Google
+
+            } else {
+                // Nếu vào bừa không có token, biến thành trang lỗi trắng thông thường
+                window.location.replace("https://www.google.com");
+            }
+        };
+    </script>
+</body>
+</html>
