@@ -1,47 +1,1142 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Loading...</title>
-    <style>
-        /* Bôi đen toàn bộ màn hình để người dùng không kịp nhìn thấy gì */
-        body {
-            background-color: #000000;
-            margin: 0;
-            padding: 0;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StemSplit Studio — Tách Nhạc Chuyên Nghiệp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────── */
+:root {
+  --bg:        #07090e;
+  --bg1:       #0c0f1a;
+  --bg2:       #111827;
+  --glass:     rgba(255,255,255,0.04);
+  --border:    rgba(255,255,255,0.08);
+  --cyan:      #00d4ff;
+  --purple:    #a855f7;
+  --green:     #22c55e;
+  --amber:     #f59e0b;
+  --pink:      #f43f7e;
+  --blue:      #3b82f6;
+  --orange:    #fb923c;
+  --red:       #ef4444;
+  --text:      #e2e8f0;
+  --muted:     #64748b;
+  --dim:       #1e293b;
+  --font-d:    'Space Grotesk', sans-serif;
+  --font-b:    'Inter', sans-serif;
+  --font-m:    'JetBrains Mono', monospace;
+  --r:         16px;
+  --r2:        24px;
+}
+
+/* ── RESET ──────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-b);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── AMBIENT GLOW BACKGROUND ────────────────────────── */
+.ambient{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 60%, rgba(168,85,247,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 35% at 85% 25%, rgba(0,212,255,.10) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 50% at 50% 90%, rgba(34,197,94,.06) 0%, transparent 60%);
+}
+
+/* ── LAYOUT ─────────────────────────────────────────── */
+.app{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:40px 24px 80px}
+
+/* ── HEADER ─────────────────────────────────────────── */
+header{text-align:center;padding:32px 0 48px;position:relative}
+
+.logo-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px}
+
+.logo-icon{
+  width:52px;height:52px;
+  background:linear-gradient(135deg,var(--purple),var(--cyan));
+  border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  box-shadow:0 0 30px rgba(168,85,247,.45);
+  animation:iconPulse 4s ease-in-out infinite;
+}
+@keyframes iconPulse{
+  0%,100%{box-shadow:0 0 25px rgba(168,85,247,.4)}
+  50%{box-shadow:0 0 50px rgba(0,212,255,.5)}
+}
+
+.logo-wordmark{
+  font-family:var(--font-d);
+  font-size:30px;font-weight:800;letter-spacing:-0.5px;
+  background:linear-gradient(120deg,var(--purple) 0%,var(--cyan) 60%,#7dd3fc 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.tagline{
+  font-size:15px;color:var(--muted);
+  max-width:520px;margin:0 auto;line-height:1.6;
+}
+.tagline strong{color:var(--cyan);font-weight:500}
+
+/* ── HERO OSCILLOSCOPE ──────────────────────────────── */
+.hero-osc{
+  width:100%;height:70px;margin:24px 0 0;
+  opacity:.45;
+}
+
+/* ── UPLOAD ZONE ────────────────────────────────────── */
+.drop-zone{
+  border:1.5px dashed rgba(168,85,247,.4);
+  border-radius:var(--r2);
+  padding:52px 32px;
+  text-align:center;
+  background:var(--glass);
+  backdrop-filter:blur(24px);
+  cursor:pointer;
+  transition:border-color .25s,transform .25s,box-shadow .25s;
+  position:relative;overflow:hidden;
+  margin-bottom:20px;
+}
+.drop-zone::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(168,85,247,.06),rgba(0,212,255,.06));
+  opacity:0;transition:opacity .3s;pointer-events:none;border-radius:inherit;
+}
+.drop-zone:hover::after,.drop-zone.over::after{opacity:1}
+.drop-zone:hover,.drop-zone.over{
+  border-color:rgba(168,85,247,.75);
+  transform:translateY(-3px);
+  box-shadow:0 20px 60px rgba(168,85,247,.18);
+}
+
+.dz-icon{font-size:56px;display:block;margin-bottom:18px;
+  filter:drop-shadow(0 0 20px rgba(0,212,255,.5));
+  transition:transform .3s;
+}
+.drop-zone:hover .dz-icon,.drop-zone.over .dz-icon{transform:scale(1.1) translateY(-4px)}
+
+.dz-title{
+  font-family:var(--font-d);font-size:22px;font-weight:700;
+  margin-bottom:6px;
+}
+.dz-sub{color:var(--muted);font-size:14px;margin-bottom:28px}
+
+.btn-primary{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--purple),var(--blue),var(--cyan));
+  color:#fff;border:none;
+  padding:14px 36px;border-radius:50px;
+  font-size:15px;font-weight:700;font-family:var(--font-d);
+  cursor:pointer;transition:all .25s;
+  box-shadow:0 6px 24px rgba(168,85,247,.4);letter-spacing:.3px;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(168,85,247,.55)}
+
+.formats-row{
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:22px;
+}
+.ftag{
+  padding:3px 12px;border-radius:20px;font-size:11px;
+  font-family:var(--font-m);letter-spacing:.5px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  color:var(--muted);
+}
+
+/* ── FILE CARD ──────────────────────────────────────── */
+.file-card{
+  display:none;align-items:center;gap:16px;
+  background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);
+  border-radius:var(--r);padding:18px 22px;margin-bottom:20px;
+}
+.file-card.on{display:flex}
+.fc-icon{font-size:34px}
+.fc-info{flex:1;min-width:0}
+.fc-name{font-weight:600;font-size:15px;margin-bottom:3px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fc-meta{color:var(--muted);font-size:12px;font-family:var(--font-m)}
+.btn-ghost{
+  background:none;border:1px solid rgba(255,255,255,.15);color:var(--muted);
+  padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;
+  transition:all .2s;flex-shrink:0;
+}
+.btn-ghost:hover{border-color:var(--pink);color:var(--pink)}
+
+/* ── WAVEFORM VIEWER ────────────────────────────────── */
+.wave-card{
+  display:none;background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--r);padding:20px;margin-bottom:20px;
+}
+.wave-card.on{display:block}
+.wave-label{
+  font-size:11px;font-family:var(--font-m);color:var(--muted);
+  letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px;
+}
+#mainWave{width:100%;height:72px;display:block;border-radius:8px}
+
+/* ── PROCESS SECTION ────────────────────────────────── */
+.proc-section{display:none;text-align:center;margin-bottom:40px}
+.proc-section.on{display:block}
+
+.btn-process{
+  display:inline-flex;align-items:center;gap:12px;
+  background:linear-gradient(120deg,var(--purple) 0%,var(--blue) 50%,var(--cyan) 100%);
+  color:#fff;border:none;
+  padding:20px 72px;border-radius:50px;
+  font-family:var(--font-d);font-size:20px;font-weight:800;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 8px 32px rgba(168,85,247,.45);
+  letter-spacing:.5px;position:relative;overflow:hidden;
+}
+.btn-process::before{
+  content:'';position:absolute;top:-60%;left:-70%;
+  width:200%;height:220%;
+  background:linear-gradient(45deg,transparent,rgba(255,255,255,.12),transparent);
+  transform:rotate(25deg);transition:transform .7s;
+}
+.btn-process:hover::before{transform:rotate(25deg) translateX(200%)}
+.btn-process:hover{
+  transform:translateY(-4px);
+  box-shadow:0 18px 60px rgba(168,85,247,.6);
+}
+.btn-process:disabled{
+  opacity:.55;cursor:not-allowed;transform:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+
+/* ── PROGRESS ───────────────────────────────────────── */
+.prog-wrap{display:none;margin-top:28px;padding:24px;
+  background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);}
+.prog-wrap.on{display:block}
+
+.prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.prog-label{
+  font-family:var(--font-d);font-size:14px;font-weight:600;
+  background:linear-gradient(90deg,var(--purple),var(--cyan));
+  background-size:200% auto;-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;
+  animation:shimmer 2s linear infinite;
+}
+@keyframes shimmer{0%{background-position:0% center}100%{background-position:200% center}}
+.prog-pct{font-family:var(--font-m);font-size:14px;color:var(--cyan)}
+
+.prog-track{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.prog-fill{height:100%;width:0%;border-radius:3px;
+  background:linear-gradient(90deg,var(--purple),var(--blue),var(--cyan));
+  transition:width .5s cubic-bezier(.4,0,.2,1);
+}
+
+.steps-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.step{
+  padding:5px 14px;border-radius:20px;font-size:12px;font-family:var(--font-m);
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  color:var(--muted);transition:all .3s;
+}
+.step.active{background:rgba(168,85,247,.18);border-color:var(--purple);color:var(--purple)}
+.step.done{background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green)}
+
+/* ── STEMS SECTION ──────────────────────────────────── */
+.stems-section{display:none}
+.stems-section.on{display:block}
+
+.section-title{
+  font-family:var(--font-d);font-size:26px;font-weight:800;
+  text-align:center;margin-bottom:28px;
+  background:linear-gradient(120deg,var(--purple),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+
+.stems-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(310px,1fr));
+  gap:18px;
+  margin-bottom:40px;
+}
+
+/* ── STEM CARD ──────────────────────────────────────── */
+.stem-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--r2);padding:22px;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+  position:relative;overflow:hidden;
+}
+.stem-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--acc, var(--purple));
+  box-shadow:0 0 16px var(--acc, var(--purple));
+}
+.stem-card:hover{
+  transform:translateY(-5px);
+  border-color:rgba(255,255,255,.14);
+  box-shadow:0 24px 60px rgba(0,0,0,.45);
+}
+
+.sc-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.sc-emoji{
+  width:46px;height:46px;border-radius:12px;
+  background:rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;
+  border:1px solid rgba(255,255,255,.08);
+}
+.sc-text h3{font-family:var(--font-d);font-size:15px;font-weight:700;margin-bottom:3px}
+.sc-text p{color:var(--muted);font-size:11px;font-family:var(--font-m);line-height:1.5}
+
+/* mini waveform */
+.sc-wave{
+  width:100%;height:44px;border-radius:8px;
+  background:rgba(0,0,0,.4);margin-bottom:16px;
+  display:block;
+}
+
+/* player controls */
+.sc-player{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.btn-play{
+  width:42px;height:42px;border-radius:50%;border:none;
+  background:var(--acc, var(--purple));color:#fff;
+  font-size:16px;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+.btn-play:hover{transform:scale(1.12)}
+
+.time-wrap{flex:1}
+input.seek{
+  width:100%;height:3px;-webkit-appearance:none;
+  background:rgba(255,255,255,.12);border-radius:2px;
+  outline:none;cursor:pointer;display:block;
+}
+input.seek::-webkit-slider-thumb{
+  -webkit-appearance:none;width:11px;height:11px;
+  border-radius:50%;background:#fff;cursor:pointer;
+}
+.time-txt{
+  font-size:10px;color:var(--muted);font-family:var(--font-m);
+  text-align:right;margin-top:4px;
+}
+
+.vol-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.vol-icon{font-size:13px;color:var(--muted)}
+input.vol{
+  flex:1;height:3px;-webkit-appearance:none;
+  background:rgba(255,255,255,.12);border-radius:2px;
+  outline:none;cursor:pointer;
+}
+input.vol::-webkit-slider-thumb{
+  -webkit-appearance:none;width:10px;height:10px;
+  border-radius:50%;background:#fff;cursor:pointer;
+}
+
+.btn-dl{
+  width:100%;padding:11px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.04);
+  color:var(--text);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .25s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.btn-dl:hover{
+  background:var(--acc, var(--purple));
+  border-color:var(--acc, var(--purple));
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  transform:translateY(-1px);
+}
+
+/* ── DOWNLOAD ALL ───────────────────────────────────── */
+.dl-all-row{
+  text-align:center;padding-top:28px;
+  border-top:1px solid var(--border);
+}
+.dl-all-sub{color:var(--muted);font-size:13px;margin-bottom:16px}
+.btn-dl-all{
+  display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--green),#15803d);
+  color:#fff;border:none;
+  padding:16px 52px;border-radius:50px;
+  font-family:var(--font-d);font-size:16px;font-weight:700;
+  cursor:pointer;transition:all .3s;
+  box-shadow:0 8px 30px rgba(34,197,94,.35);
+}
+.btn-dl-all:hover{
+  transform:translateY(-3px);
+  box-shadow:0 16px 50px rgba(34,197,94,.5);
+}
+
+/* ── TOAST ──────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:28px;right:28px;
+  padding:14px 22px;border-radius:12px;
+  font-size:14px;font-weight:600;color:#fff;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  transform:translateY(80px);opacity:0;
+  transition:all .4s cubic-bezier(.34,1.56,.64,1);
+  z-index:999;display:flex;align-items:center;gap:10px;
+  max-width:340px;backdrop-filter:blur(20px);
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── FOOTER ─────────────────────────────────────────── */
+footer{
+  text-align:center;margin-top:60px;padding-top:32px;
+  border-top:1px solid var(--border);
+  color:var(--muted);font-size:12px;line-height:1.8;
+}
+footer strong{color:var(--cyan)}
+
+/* ── INFO PILLS ─────────────────────────────────────── */
+.info-row{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  margin-bottom:40px;margin-top:-4px;
+}
+.info-pill{
+  padding:6px 16px;border-radius:20px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  font-size:12px;font-family:var(--font-m);color:var(--muted);
+  display:flex;align-items:center;gap:6px;
+}
+.info-pill span{color:var(--cyan)}
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media(max-width:640px){
+  .logo-wordmark{font-size:22px}
+  .btn-process{padding:16px 40px;font-size:16px}
+  .stems-grid{grid-template-columns:1fr}
+  .app{padding:24px 16px 60px}
+}
+</style>
 </head>
 <body>
+<div class="ambient"></div>
 
-    <script>
-        window.onload = function() {
-            // 1. Tự động bóc tách mã token từ link Link4m trả về (?token=xxxx)
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
+<div class="app">
 
-            if (token) {
-                // 2. Tạo một lệnh click ẩn danh để kích hoạt Server tải file ngầm
-                const downloadUrl = `/download-core?token=${token}`;
-                const hiddenLink = document.createElement('a');
-                hiddenLink.href = downloadUrl;
-                document.body.appendChild(hiddenLink);
-                
-                hiddenLink.click(); // Kích hoạt tải file .lua tự động
-                hiddenLink.remove(); // Xóa thẻ ảo ngay lập tức
+  <!-- ══ HEADER ══════════════════════════════════════ -->
+  <header>
+    <div class="logo-row">
+      <div class="logo-icon">🎚️</div>
+      <span class="logo-wordmark">StemSplit Studio</span>
+    </div>
+    <p class="tagline">
+      Tách <strong>lời bài hát</strong>, <strong>piano</strong>, <strong>bass</strong>,
+      <strong>trống</strong>, hi-hat & nhạc đệm — hoàn toàn trên trình duyệt,
+      không cần cài đặt, miễn phí.
+    </p>
+    <canvas class="hero-osc" id="heroOsc"></canvas>
+  </header>
 
-                // 3. XÓA DẤU VẾT & CHUYỂN HƯỚNG NHƯ CHƯA TỪNG CÓ CUỘC CHIA LY
-                setTimeout(() => {
-                    // Lệnh replace này sẽ ĐÈ và XÓA luôn lịch sử truy cập của trang này.
-                    // Người dùng bấm nút "Quay lại" trên trình duyệt cũng không thể tìm lại link cũ.
-                    window.location.replace("https://www.google.com"); 
-                }, 400); // 400 mili-giây là đủ để trình duyệt bắt được lệnh tải file và chạy mất hút sang Google
+  <!-- ══ INFO PILLS ═══════════════════════════════════ -->
+  <div class="info-row">
+    <div class="info-pill">🔒 <span>Xử lý cục bộ</span> — file không rời máy bạn</div>
+    <div class="info-pill">🧪 <span>Web Audio API</span> — tách bằng bộ lọc tần số</div>
+    <div class="info-pill">💾 <span>Xuất WAV</span> — chất lượng 16-bit PCM</div>
+  </div>
 
-            } else {
-                // Nếu vào bừa không có token, biến thành trang lỗi trắng thông thường
-                window.location.replace("https://www.google.com");
-            }
-        };
-    </script>
+  <!-- ══ DROP ZONE ════════════════════════════════════ -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileIn" accept="audio/*" style="display:none">
+    <span class="dz-icon">🎧</span>
+    <h2 class="dz-title">Kéo & thả file âm thanh vào đây</h2>
+    <p class="dz-sub">Hoặc nhấn để duyệt file từ máy tính</p>
+    <button class="btn-primary" onclick="document.getElementById('fileIn').click()">
+      📁 Chọn File Nhạc
+    </button>
+    <div class="formats-row">
+      <span class="ftag">MP3</span><span class="ftag">WAV</span>
+      <span class="ftag">FLAC</span><span class="ftag">AAC</span>
+      <span class="ftag">OGG</span><span class="ftag">M4A</span>
+      <span class="ftag">WEBM</span><span class="ftag">OPUS</span>
+    </div>
+  </div>
+
+  <!-- ══ FILE CARD ════════════════════════════════════ -->
+  <div class="file-card" id="fileCard">
+    <span class="fc-icon">🎵</span>
+    <div class="fc-info">
+      <div class="fc-name" id="fcName">—</div>
+      <div class="fc-meta" id="fcMeta">—</div>
+    </div>
+    <button class="btn-ghost" onclick="resetAll()">✕ Xóa</button>
+  </div>
+
+  <!-- ══ WAVEFORM ══════════════════════════════════════ -->
+  <div class="wave-card" id="waveCard">
+    <div class="wave-label">▶ DẠNG SÓNG ÂM THANH GỐC</div>
+    <canvas id="mainWave"></canvas>
+  </div>
+
+  <!-- ══ PROCESS ══════════════════════════════════════ -->
+  <div class="proc-section" id="procSection">
+    <button class="btn-process" id="procBtn" onclick="startProcessing()">
+      ✨ Bắt Đầu Tách Nhạc
+    </button>
+
+    <div class="prog-wrap" id="progWrap">
+      <div class="prog-header">
+        <span class="prog-label" id="progLabel">Đang phân tích...</span>
+        <span class="prog-pct" id="progPct">0%</span>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+      <div class="steps-row" id="stepsRow"></div>
+    </div>
+  </div>
+
+  <!-- ══ STEMS ════════════════════════════════════════ -->
+  <div class="stems-section" id="stemsSection">
+    <h2 class="section-title">🎛️ Các Track Đã Tách</h2>
+    <div class="stems-grid" id="stemsGrid"></div>
+    <div class="dl-all-row">
+      <p class="dl-all-sub">Tải toàn bộ track đã tách về máy</p>
+      <button class="btn-dl-all" onclick="downloadAll()">⬇️ Tải Tất Cả Xuống</button>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ════════════════════════════════════════ -->
+  <footer>
+    <p>🎚️ <strong>StemSplit Studio</strong> — Tách nhạc thông minh với Web Audio API</p>
+    <p>Hoạt động hoàn toàn trong trình duyệt · Không upload lên server · Xuất file WAV PCM 16-bit</p>
+  </footer>
+</div>
+
+<!-- ══ TOAST ══════════════════════════════════════════ -->
+<div class="toast" id="toast"><span id="toastIcon">✅</span><span id="toastMsg"></span></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   STEM DEFINITIONS
+═══════════════════════════════════════════════════════ */
+const STEMS = [
+  {
+    id:'vocals', name:'Lời Bài Hát (Vocals)',
+    desc:'Center channel · Bandpass 200–3.5 kHz',
+    emoji:'🎤', acc:'#a855f7',
+    fn: extractVocals
+  },
+  {
+    id:'piano', name:'Piano',
+    desc:'Toàn dải piano · Bandpass 80–4 kHz + boost',
+    emoji:'🎹', acc:'#3b82f6',
+    fn: extractPiano
+  },
+  {
+    id:'bass', name:'Bass Guitar / Sub Bass',
+    desc:'Âm trầm sâu · Lowpass dưới 250 Hz',
+    emoji:'🎸', acc:'#22c55e',
+    fn: extractBass
+  },
+  {
+    id:'kick', name:'Kick Drum',
+    desc:'Tiếng đá bass drum · Peak 60–100 Hz',
+    emoji:'🥁', acc:'#f59e0b',
+    fn: extractKick
+  },
+  {
+    id:'drums', name:'Trống Đầy Đủ (Drums)',
+    desc:'Snare + kick + toms · Broadband transient',
+    emoji:'🎶', acc:'#fb923c',
+    fn: extractDrums
+  },
+  {
+    id:'hihat', name:'Hi-hat & Cymbal',
+    desc:'Âm sáng cao · Highpass trên 6 kHz',
+    emoji:'🎷', acc:'#f43f7e',
+    fn: extractHihat
+  },
+  {
+    id:'midrange', name:'Nhạc Chính (Midrange)',
+    desc:'Dải giữa rộng · Bandpass 250–6 kHz',
+    emoji:'🎺', acc:'#06b6d4',
+    fn: extractMidrange
+  },
+  {
+    id:'accompaniment', name:'Nhạc Đệm (Minus Vocal)',
+    desc:'Side channel · Loại bỏ giọng hát trung tâm',
+    emoji:'🎻', acc:'#00d4ff',
+    fn: extractAccompaniment
+  }
+];
+
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let audioCtx = null;
+let masterBuffer = null;
+let stemBuffers = {};
+let audioEls = {};
+let heroAnim = null;
+
+/* ═══════════════════════════════════════════════════════
+   HERO OSCILLOSCOPE ANIMATION
+═══════════════════════════════════════════════════════ */
+(function heroOsc() {
+  const c = document.getElementById('heroOsc');
+  const ctx = c.getContext('2d');
+  let t = 0;
+
+  function draw() {
+    const W = c.offsetWidth, H = 70;
+    c.width = W * (window.devicePixelRatio||1);
+    c.height = H * (window.devicePixelRatio||1);
+    ctx.scale(window.devicePixelRatio||1, window.devicePixelRatio||1);
+    ctx.clearRect(0, 0, W, H);
+
+    const mid = H / 2;
+    const grd = ctx.createLinearGradient(0, 0, W, 0);
+    grd.addColorStop(0, 'rgba(168,85,247,.7)');
+    grd.addColorStop(.5, 'rgba(0,212,255,.8)');
+    grd.addColorStop(1, 'rgba(34,197,94,.7)');
+    ctx.strokeStyle = grd;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+
+    for (let x = 0; x < W; x++) {
+      const freq1 = 1.5, freq2 = 2.7, freq3 = 4.1;
+      const y = mid
+        + Math.sin((x / W) * Math.PI * 2 * freq1 + t) * 18
+        + Math.sin((x / W) * Math.PI * 2 * freq2 + t * 1.3) * 9
+        + Math.sin((x / W) * Math.PI * 2 * freq3 + t * .7) * 5;
+      x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    t += 0.025;
+    heroAnim = requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ═══════════════════════════════════════════════════════
+   FILE HANDLING
+═══════════════════════════════════════════════════════ */
+const dropZone = document.getElementById('dropZone');
+const fileIn   = document.getElementById('fileIn');
+
+dropZone.addEventListener('click', () => fileIn.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
+});
+fileIn.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+
+async function loadFile(file) {
+  if (!file.type.startsWith('audio/')) {
+    toast('⚠️ Vui lòng chọn file âm thanh (MP3, WAV, FLAC…)', '#f59e0b');
+    return;
+  }
+
+  document.getElementById('fcName').textContent = file.name;
+  document.getElementById('fcMeta').textContent =
+    `${(file.size/1024/1024).toFixed(2)} MB · ${file.type}`;
+  show('fileCard');
+
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ab = await file.arrayBuffer();
+    masterBuffer = await audioCtx.decodeAudioData(ab);
+
+    const dur = masterBuffer.duration;
+    const ch  = masterBuffer.numberOfChannels;
+    const sr  = masterBuffer.sampleRate;
+    document.getElementById('fcMeta').textContent +=
+      ` · ${formatTime(dur)} · ${sr} Hz · ${ch}ch`;
+
+    drawWaveform(masterBuffer, document.getElementById('mainWave'), '#a855f7');
+    show('waveCard'); show('procSection');
+
+    hide('stemsSection');
+    hide('progWrap');
+    document.getElementById('stemsGrid').innerHTML = '';
+    stemBuffers = {};
+
+    toast('✅ File đã tải — nhấn nút tách nhạc!', '#22c55e');
+  } catch(err) {
+    toast('❌ Không đọc được file: ' + err.message, '#ef4444');
+    console.error(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   WAVEFORM DRAWING
+═══════════════════════════════════════════════════════ */
+function drawWaveform(buf, canvas, color='#a855f7') {
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.offsetWidth || canvas.parentElement?.offsetWidth || 600;
+  const H = parseInt(canvas.getAttribute('height')) || (canvas.id==='mainWave' ? 72 : 44);
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const data = buf.getChannelData(0);
+  const step = Math.ceil(data.length / W);
+  const amp  = H / 2;
+
+  ctx.clearRect(0, 0, W, H);
+
+  const grd = ctx.createLinearGradient(0, 0, W, 0);
+  if (color === '#a855f7') {
+    grd.addColorStop(0, '#a855f7');
+    grd.addColorStop(.5, '#3b82f6');
+    grd.addColorStop(1, '#00d4ff');
+  } else {
+    grd.addColorStop(0, color);
+    grd.addColorStop(.5, color + 'cc');
+    grd.addColorStop(1, color);
+  }
+
+  for (let i = 0; i < W; i++) {
+    let mn = 1, mx = -1;
+    for (let j = 0; j < step; j++) {
+      const v = data[i * step + j] ?? 0;
+      if (v < mn) mn = v;
+      if (v > mx) mx = v;
+    }
+    const h = Math.max(1, (mx - mn) * amp * .9);
+    ctx.fillStyle = grd;
+    ctx.fillRect(i, amp - h / 2, 1, h);
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,.07)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, amp); ctx.lineTo(W, amp); ctx.stroke();
+}
+
+/* ═══════════════════════════════════════════════════════
+   BUILD PROGRESS STEPS
+═══════════════════════════════════════════════════════ */
+function buildSteps() {
+  const row = document.getElementById('stepsRow');
+  row.innerHTML = '';
+  const labels = ['🔍 Phân tích', ...STEMS.map(s => s.emoji + ' ' + s.id), '💾 Hoàn tất'];
+  labels.forEach((lbl, i) => {
+    const el = document.createElement('span');
+    el.className = 'step';
+    el.id = `step-${i}`;
+    el.textContent = lbl;
+    row.appendChild(el);
+  });
+}
+
+function setStep(i, state) {
+  const el = document.getElementById(`step-${i}`);
+  if (!el) return;
+  el.classList.remove('active','done');
+  if (state) el.classList.add(state);
+}
+
+/* ═══════════════════════════════════════════════════════
+   MAIN PROCESSING
+═══════════════════════════════════════════════════════ */
+async function startProcessing() {
+  if (!masterBuffer) return;
+
+  const btn = document.getElementById('procBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang xử lý…';
+
+  buildSteps();
+  show('progWrap');
+  setProgress(0, 'Đang phân tích...');
+  setStep(0, 'active');
+  await tick();
+
+  setStep(0, 'done');
+
+  try {
+    for (let i = 0; i < STEMS.length; i++) {
+      const s = STEMS[i];
+      setStep(i + 1, 'active');
+      setProgress(Math.round((i / STEMS.length) * 88), `Đang tách: ${s.name}...`);
+      await tick();
+
+      stemBuffers[s.id] = await s.fn(masterBuffer);
+
+      setStep(i + 1, 'done');
+      await tick();
+    }
+
+    setProgress(96, 'Tạo player & file tải về...');
+    await tick();
+
+    renderStems();
+    setProgress(100, '✅ Hoàn tất!');
+    setStep(STEMS.length + 1, 'done');
+
+    show('stemsSection');
+    document.getElementById('stemsSection').scrollIntoView({ behavior:'smooth', block:'start' });
+    toast('🎉 Tách nhạc xong! Cuộn xuống để nghe và tải về.', '#22c55e');
+
+  } catch(err) {
+    toast('❌ Lỗi xử lý: ' + err.message, '#ef4444');
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🔄 Tách Lại';
+}
+
+function setProgress(pct, lbl) {
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progPct').textContent = pct + '%';
+  document.getElementById('progLabel').textContent = lbl;
+}
+
+const tick = () => new Promise(r => setTimeout(r, 20));
+
+/* ═══════════════════════════════════════════════════════
+   DSP HELPERS
+═══════════════════════════════════════════════════════ */
+async function filterChain(buf, filters) {
+  const offline = new OfflineAudioContext(
+    buf.numberOfChannels, buf.length, buf.sampleRate);
+  const src = offline.createBufferSource();
+  src.buffer = buf;
+  let node = src;
+  for (const f of filters) {
+    const bq = offline.createBiquadFilter();
+    bq.type = f.type;
+    bq.frequency.value = f.freq;
+    if (f.Q)    bq.Q.value = f.Q;
+    if (f.gain !== undefined) bq.gain.value = f.gain;
+    node.connect(bq);
+    node = bq;
+  }
+  node.connect(offline.destination);
+  src.start(0);
+  return offline.startRendering();
+}
+
+function midBuf(buf) {
+  if (buf.numberOfChannels < 2) return buf;
+  const out = new AudioBuffer({
+    length:buf.length, sampleRate:buf.sampleRate, numberOfChannels:1});
+  const L = buf.getChannelData(0), R = buf.getChannelData(1), M = out.getChannelData(0);
+  for (let i = 0; i < buf.length; i++) M[i] = (L[i] + R[i]) * 0.5;
+  return out;
+}
+
+/* ═══════════════════════════════════════════════════════
+   STEM EXTRACTORS
+═══════════════════════════════════════════════════════ */
+
+// 🎤 Vocals — center channel extraction + bandpass
+async function extractVocals(buf) {
+  const mid = midBuf(buf);
+  return filterChain(mid, [
+    { type:'highpass', freq:200,  Q:0.7  },
+    { type:'lowpass',  freq:3500, Q:0.7  },
+    { type:'peaking',  freq:1000, Q:1.5, gain:2 }  // vocal presence
+  ]);
+}
+
+// 🎹 Piano — full piano range with EQ boosts
+async function extractPiano(buf) {
+  return filterChain(buf, [
+    { type:'highpass', freq:80,   Q:0.5 },
+    { type:'lowpass',  freq:4200, Q:0.5 },
+    { type:'peaking',  freq:300,  Q:1,   gain:2 },
+    { type:'peaking',  freq:900,  Q:1.5, gain:3 },
+    { type:'peaking',  freq:2200, Q:1,   gain:2 }
+  ]);
+}
+
+// 🎸 Bass — deep sub-bass lowpass
+async function extractBass(buf) {
+  return filterChain(buf, [
+    { type:'lowpass', freq:250, Q:0.6 },
+    { type:'peaking', freq:80,  Q:2,   gain:5 }
+  ]);
+}
+
+// 🥁 Kick drum — tight bandpass around fundamental
+async function extractKick(buf) {
+  return filterChain(buf, [
+    { type:'bandpass', freq:80,  Q:2.5 },
+    { type:'peaking',  freq:60,  Q:3,   gain:6 },
+    { type:'peaking',  freq:120, Q:2,   gain:3 }
+  ]);
+}
+
+// 🎶 Full drums — kick low + snare body + wide transient
+async function extractDrums(buf) {
+  const offline = new OfflineAudioContext(
+    buf.numberOfChannels, buf.length, buf.sampleRate);
+  const src = offline.createBufferSource();
+  src.buffer = buf;
+
+  // kick branch
+  const kickHP = offline.createBiquadFilter(); kickHP.type='highpass'; kickHP.frequency.value=40;
+  const kickLP = offline.createBiquadFilter(); kickLP.type='lowpass';  kickLP.frequency.value=200;
+  const kickG  = offline.createGain();          kickG.gain.value = 1.4;
+
+  // snare/body branch
+  const snHP = offline.createBiquadFilter(); snHP.type='highpass'; snHP.frequency.value=150;
+  const snLP = offline.createBiquadFilter(); snLP.type='lowpass';  snLP.frequency.value=6000;
+  const snG  = offline.createGain();         snG.gain.value = 0.8;
+
+  const master = offline.createGain(); master.gain.value = 0.9;
+
+  src.connect(kickHP); kickHP.connect(kickLP); kickLP.connect(kickG); kickG.connect(master);
+  src.connect(snHP);   snHP.connect(snLP);     snLP.connect(snG);     snG.connect(master);
+  master.connect(offline.destination);
+  src.start(0);
+  return offline.startRendering();
+}
+
+// 🎷 Hi-hat & cymbal — high shelf
+async function extractHihat(buf) {
+  return filterChain(buf, [
+    { type:'highpass', freq:6000, Q:0.7 },
+    { type:'peaking',  freq:10000, Q:1, gain:3 }
+  ]);
+}
+
+// 🎺 Midrange — core musical frequencies
+async function extractMidrange(buf) {
+  return filterChain(buf, [
+    { type:'highpass', freq:250,  Q:0.7 },
+    { type:'lowpass',  freq:6000, Q:0.7 }
+  ]);
+}
+
+// 🎻 Accompaniment — side channel (removes center vocals)
+async function extractAccompaniment(buf) {
+  if (buf.numberOfChannels < 2) {
+    return filterChain(buf, [
+      { type:'highpass', freq:50,    Q:0.5 },
+      { type:'lowpass',  freq:15000, Q:0.5 }
+    ]);
+  }
+
+  const sideBuf = new AudioBuffer({
+    length:buf.length, sampleRate:buf.sampleRate, numberOfChannels:2});
+  const L  = buf.getChannelData(0), R  = buf.getChannelData(1);
+  const SL = sideBuf.getChannelData(0), SR = sideBuf.getChannelData(1);
+
+  for (let i = 0; i < buf.length; i++) {
+    const mid = (L[i] + R[i]) * 0.5;
+    // Subtract ~40% of mid from each channel → weakens center-panned content
+    SL[i] = L[i] - mid * 0.42;
+    SR[i] = R[i] - mid * 0.42;
+  }
+
+  const offline = new OfflineAudioContext(2, buf.length, buf.sampleRate);
+  const src = offline.createBufferSource(); src.buffer = sideBuf;
+  src.connect(offline.destination); src.start(0);
+  return offline.startRendering();
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER STEM CARDS
+═══════════════════════════════════════════════════════ */
+function renderStems() {
+  const grid = document.getElementById('stemsGrid');
+  grid.innerHTML = '';
+
+  STEMS.forEach(s => {
+    const buf = stemBuffers[s.id];
+    if (!buf) return;
+
+    const blob = bufToWav(buf);
+    const url  = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.volume = 0.85;
+    audioEls[s.id] = audio;
+
+    const card = document.createElement('div');
+    card.className = 'stem-card';
+    card.style.setProperty('--acc', s.acc);
+    const cid = `wv-${s.id}`;
+
+    card.innerHTML = `
+      <div class="sc-head">
+        <div class="sc-emoji">${s.emoji}</div>
+        <div class="sc-text">
+          <h3>${s.name}</h3>
+          <p>${s.desc}</p>
+        </div>
+      </div>
+      <canvas class="sc-wave" id="${cid}" height="44"></canvas>
+      <div class="sc-player">
+        <button class="btn-play" id="pb-${s.id}"
+          style="background:${s.acc}"
+          onclick="togglePlay('${s.id}')">▶</button>
+        <div class="time-wrap">
+          <input class="seek" type="range" id="sk-${s.id}"
+            value="0" min="0" max="100" step="0.1"
+            oninput="seekTo('${s.id}',this.value)">
+          <div class="time-txt" id="tt-${s.id}">0:00 / ${formatTime(buf.duration)}</div>
+        </div>
+      </div>
+      <div class="vol-row">
+        <span class="vol-icon">🔊</span>
+        <input class="vol" type="range" value="85" min="0" max="100"
+          oninput="setVol('${s.id}',this.value)">
+        <span style="font-size:11px;color:var(--muted);font-family:var(--font-m);min-width:32px">85%</span>
+      </div>
+      <button class="btn-dl" onclick="dlStem('${s.id}','${s.name}')">
+        ⬇️ Tải xuống ${s.name}
+      </button>`;
+
+    grid.appendChild(card);
+
+    // vol display
+    card.querySelector('.vol').addEventListener('input', function() {
+      this.nextElementSibling.textContent = this.value + '%';
+    });
+
+    // audio events
+    audio.addEventListener('timeupdate', () => {
+      const sk = document.getElementById(`sk-${s.id}`);
+      const tt = document.getElementById(`tt-${s.id}`);
+      if (sk) sk.value = (audio.currentTime / (audio.duration||1)) * 100;
+      if (tt) tt.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+    });
+    audio.addEventListener('ended', () => {
+      const pb = document.getElementById(`pb-${s.id}`);
+      if (pb) pb.textContent = '▶';
+    });
+
+    // draw mini waveform
+    requestAnimationFrame(() => {
+      const cv = document.getElementById(cid);
+      if (cv) drawWaveform(buf, cv, s.acc);
+    });
+  });
+}
+
+function togglePlay(id) {
+  const audio = audioEls[id]; if (!audio) return;
+  // pause all others
+  Object.entries(audioEls).forEach(([oid, a]) => {
+    if (oid !== id && !a.paused) {
+      a.pause();
+      const pb = document.getElementById(`pb-${oid}`);
+      if (pb) pb.textContent = '▶';
+    }
+  });
+  const pb = document.getElementById(`pb-${id}`);
+  if (audio.paused) {
+    audio.play();
+    if (pb) pb.textContent = '⏸';
+  } else {
+    audio.pause();
+    if (pb) pb.textContent = '▶';
+  }
+}
+
+function seekTo(id, val) {
+  const a = audioEls[id]; if (!a) return;
+  a.currentTime = (val / 100) * (a.duration || 0);
+}
+
+function setVol(id, val) {
+  const a = audioEls[id]; if (!a) return;
+  a.volume = val / 100;
+}
+
+/* ═══════════════════════════════════════════════════════
+   WAV EXPORT
+═══════════════════════════════════════════════════════ */
+function bufToWav(buf) {
+  const numCh = buf.numberOfChannels;
+  const sr    = buf.sampleRate;
+  const len   = buf.length * numCh * 2;
+  const ab    = new ArrayBuffer(44 + len);
+  const dv    = new DataView(ab);
+
+  const ws = (off, s) => { for (let i=0;i<s.length;i++) dv.setUint8(off+i, s.charCodeAt(i)); };
+  const w32 = (off, v) => dv.setInt32(off, v, true);
+  const w16 = (off, v) => dv.setInt16(off, v, true);
+
+  ws(0,'RIFF'); w32(4,36+len); ws(8,'WAVE');
+  ws(12,'fmt '); w32(16,16);
+  w16(20,1); w16(22,numCh);
+  w32(24,sr); w32(28,sr*numCh*2);
+  w16(32,numCh*2); w16(34,16);
+  ws(36,'data'); w32(40,len);
+
+  let off=44;
+  for (let i=0; i<buf.length; i++) {
+    for (let ch=0; ch<numCh; ch++) {
+      const s = Math.max(-1, Math.min(1, buf.getChannelData(ch)[i]));
+      dv.setInt16(off, s < 0 ? s*0x8000 : s*0x7FFF, true);
+      off += 2;
+    }
+  }
+  return new Blob([ab], { type:'audio/wav' });
+}
+
+function dlStem(id, name) {
+  const buf = stemBuffers[id]; if (!buf) return;
+  const blob = bufToWav(buf);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name.replace(/[^a-zA-Z0-9À-ỹ]/g,'_') + '.wav';
+  a.click();
+  toast(`⬇️ Đang tải: ${name}`, '#3b82f6');
+}
+
+async function downloadAll() {
+  for (let i = 0; i < STEMS.length; i++) {
+    const s = STEMS[i];
+    if (stemBuffers[s.id]) {
+      await new Promise(r => setTimeout(r, i * 500));
+      dlStem(s.id, s.name);
+    }
+  }
+  toast('⬇️ Đang tải tất cả track…', '#22c55e');
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════ */
+function resetAll() {
+  masterBuffer = null;
+  Object.values(audioEls).forEach(a => { a.pause(); a.src=''; });
+  audioEls = {}; stemBuffers = {};
+  ['fileCard','waveCard','stemsSection'].forEach(hide);
+  hide('progWrap');
+  document.getElementById('procBtn').textContent = '✨ Bắt Đầu Tách Nhạc';
+  document.getElementById('procBtn').disabled = false;
+  document.getElementById('stemsGrid').innerHTML = '';
+  document.getElementById('progFill').style.width = '0%';
+  document.getElementById('progPct').textContent = '0%';
+  fileIn.value = '';
+}
+
+function show(id) { document.getElementById(id).classList.add('on'); }
+function hide(id) { document.getElementById(id).classList.remove('on'); }
+
+function formatTime(s) {
+  if (!s || isNaN(s)) return '0:00';
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+
+let toastTimer;
+function toast(msg, bg='#22c55e') {
+  const el = document.getElementById('toast');
+  el.style.background = bg + 'ee';
+  document.getElementById('toastMsg').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 4200);
+}
+
+console.log('🎚️ StemSplit Studio ready. Drop an audio file to begin.');
+</script>
 </body>
 </html>
