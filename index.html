@@ -3,10 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#12141a">
 <title>MP3 sang MIDI piano</title>
 <style>
 :root{--bg:#12141a;--panel:#1b1e27;--line:#2b3040;--ink:#e9ebf2;--mute:#9aa0b3;--note:#8fa2ff;--ok:#6fd3a5;--err:#ff8a98}
 *{box-sizing:border-box}
+html{background:#12141a;color-scheme:dark}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 main{max-width:980px;margin:0 auto;padding:36px 20px 64px}
 h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
@@ -81,7 +84,6 @@ function loadLib() {
     document.head.appendChild(s);
   });
 }
-addEventListener('load', () => setTimeout(() => loadLib().catch(() => {}), 500));
 
 async function handle(f) {
   if (!f) return;
