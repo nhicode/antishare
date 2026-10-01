@@ -4,12 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MP3 sang MIDI piano</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@magenta/music@1.23.1"></script>
 <style>
 :root{--bg:#12141a;--panel:#1b1e27;--line:#2b3040;--ink:#e9ebf2;--mute:#9aa0b3;--note:#8fa2ff;--ok:#6fd3a5;--err:#ff8a98}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Sora,system-ui,sans-serif}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
 main{max-width:980px;margin:0 auto;padding:36px 20px 64px}
 h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
 .sub{color:var(--mute);margin:0 0 26px;max-width:60ch}
@@ -74,13 +72,24 @@ input.onchange = () => handle(input.files[0]);
 const CKPT = 'https://storage.googleapis.com/magentadata/js/checkpoints/transcription/onsets_frames_uni';
 let model;
 
+function loadLib() {
+  return window.mm ? Promise.resolve() : new Promise((ok, no) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@magenta/music@1.23.1';
+    s.onload = ok;
+    s.onerror = () => no(new Error('không tải được thư viện, hãy kiểm tra kết nối internet'));
+    document.head.appendChild(s);
+  });
+}
+addEventListener('load', () => setTimeout(() => loadLib().catch(() => {}), 500));
+
 async function handle(f) {
   if (!f) return;
   result.hidden = true; audio.pause();
   const t0 = performance.now();
   const timer = setInterval(() => { const t = $('#t'); if (t) t.textContent = ((performance.now() - t0) / 1000 | 0) + ' giây'; }, 500);
   try {
-    if (!window.mm) throw new Error('không tải được thư viện, hãy kiểm tra kết nối internet');
+    if (!window.mm) { setStatus('Đang tải thư viện… <span id="t">0 giây</span>'); await loadLib(); }
     if (!model) {
       setStatus('Đang tải mô hình (chỉ lần đầu)… <span id="t">0 giây</span>');
       const m = new mm.OnsetsAndFrames(CKPT); await m.initialize(); model = m;
