@@ -23,8 +23,8 @@ h1{font-size:30px;line-height:1.15;margin:0 0 6px;letter-spacing:-.01em}
 #result[hidden]{display:none}
 .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:14px}
 #info{color:var(--mute);margin-right:auto}
-a.btn{background:var(--note);color:#10142a;font-weight:600;text-decoration:none;padding:9px 18px;border-radius:8px}
-a.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.btn{background:var(--note);color:#10142a;font:inherit;font-weight:600;border:0;cursor:pointer;padding:10px 18px;border-radius:8px}
+.btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
 audio{flex:1 1 300px;min-width:0;height:38px}
 canvas{width:100%;height:340px;display:block;border-radius:8px;background:#0e1016}
 .hint{color:var(--mute);font-size:13px;margin:10px 0 0}
@@ -46,11 +46,11 @@ canvas{width:100%;height:340px;display:block;border-radius:8px;background:#0e101
   <section id="result" hidden>
     <div class="row">
       <span id="info"></span>
-      <a id="dl" class="btn">Tải file .mid</a>
+      <button id="dl" class="btn" type="button">Tải file .mid</button>
     </div>
     <div class="row"><audio id="audio" controls></audio></div>
     <canvas id="roll"></canvas>
-    <p class="hint">Bấm phát để nốt chạy theo bản gốc. Nốt sáng hơn là nốt đánh mạnh hơn.</p>
+    <p class="hint">Bấm phát để nốt chạy theo bản gốc. Nốt sáng hơn là nốt đánh mạnh hơn. Trên iPhone, bấm Tải file .mid rồi chọn Lưu vào Tệp.</p>
   </section>
 </main>
 
@@ -72,7 +72,22 @@ drop.addEventListener('drop', e => handle(e.dataTransfer.files[0]));
 input.onchange = () => handle(input.files[0]);
 
 const CKPT = 'https://storage.googleapis.com/magentadata/js/checkpoints/transcription/onsets_frames_uni';
-let model;
+let model, midiBytes, midiName;
+
+$('#dl').onclick = async () => {
+  if (!midiBytes) return;
+  const file = new File([midiBytes], midiName, { type: 'audio/midi' });
+  // iPhone/iPad: mở bảng chia sẻ để chọn "Lưu vào Tệp"
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: midiName }); return; }
+    catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const url = URL.createObjectURL(new Blob([midiBytes], { type: 'application/octet-stream' }));
+  const a = document.createElement('a');
+  a.href = url; a.download = midiName;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+};
 
 async function handle(f) {
   if (!f) return;
@@ -98,9 +113,8 @@ function show(f, ns) {
   if (!notes.length) throw new Error('không phát hiện nốt piano nào trong file');
   lo = Math.min(...notes.map(n => n.midi)) - 1;
   hi = Math.max(...notes.map(n => n.midi)) + 1;
-  const a = $('#dl');
-  a.href = URL.createObjectURL(new Blob([mm.sequenceProtoToMidi(ns)], { type: 'audio/midi' }));
-  a.download = f.name.replace(/\.[^.]+$/, '') + '.mid';
+  midiBytes = mm.sequenceProtoToMidi(ns);
+  midiName = f.name.replace(/\.[^.]+$/, '') + '.mid';
   if (audioURL) URL.revokeObjectURL(audioURL);
   audio.src = audioURL = URL.createObjectURL(f);
   $('#info').textContent = `${notes.length} nốt · ${ns.totalTime.toFixed(1)} giây`;
